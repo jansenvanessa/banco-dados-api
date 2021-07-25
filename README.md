@@ -39,6 +39,8 @@ db.createCollection('Travels');
 db.createCollection('Passengers');
 ```
 
+### Novos Documentos
+
 Com nossas duas collections criadas e vazias, vamos inserir novos registros! Para isso utilize os comandos abaixo:
 
 * Inserir passageiros:
@@ -229,7 +231,7 @@ db.Passengers.insertMany([
 ]);
 ```
 
-* Inserir Viagem:
+* Inserir Viagens:
 
 ```
 db.Travels.insertMany([{
@@ -525,6 +527,14 @@ db.Travels.insertMany([{
     }
 ]);
 ```
+
+Com o banco de dados populado, caso você rode a consulta `db.getCollection('Passengers').find({})` e a consulta `db.getCollection('Travels').find({})` você verá que a mesma retornará informações, o que antes não acontecia com essas collections vazias.
+
+## Banco de Dados populado, e agora?
+
+Agora que temos nossa base de dados pronta para poder ser utilizada pela api, podemos começar a fazer alterações na mesma para parar de trabalhar com arquivos json e passar olhar para o nosso banco de dados que acabamos de preparar.
+
+
 
 ----
 
