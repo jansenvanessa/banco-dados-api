@@ -587,7 +587,59 @@ Agora podemos testar se a nossa conexão foi feita com sucesso dando um `npm sta
 
 ## Alterando os arquivos json para consultar direto do Banco de Dados
 
-Com a conexão com o banco de dados feita na nossa api, podemos parar de consumir os arquivos json e fazer a comunicação direta com o banco de dados.
+Com a conexão com o banco de dados feita na nossa api, podemos parar de consumir os arquivos json e fazer a comunicação direta com o banco de dados. Primeiro, vamos na pasta `models` onde estão nossos json e vamos criar dois novos arquivos: `passengers.js` e `travels.js`.
+
+* No nosso novo arquivo `passengers` vamos criar o que chamamos de schema:
+
+```
+const mongoose = require('mongoose');
+
+//estrutura do seu model (atributos da sua entidade)
+const passengersSchema = new mongoose.Schema({
+    id: { type: String },
+    name: { type: String },
+    email: { type: String },
+    documentNumber: { type: String },
+    travelId: { type: String }
+}, {
+    //gera por padrão uma versão para cada atualização do documento
+    versionKey: false
+});
+
+// atribuindo o esquema a uma collection
+// estou definindo o nome da collection que irei salvar no banco
+const passengers = mongoose.model('Passengers', passengersSchema);
+
+// exportar o model para ser utilizado
+module.exports = passengers;
+```
+* No nosso novo arquivo `travels.js` vamos também o schema:
+
+```
+const mongoose = require('mongoose');
+
+//estrutura do seu model (atributos da sua entidade)
+const travelsSchema = new mongoose.Schema({
+    id: { type: String },
+    durationPrediction: { type: String },
+    stops: { type: String },
+    destination: { type: Object },
+    busInfos: { type: Object },
+    driverInfos: { type: Object },
+    passengersInfos: { type: Object }
+}, {
+    //gera por padrão uma versão para cada atualização do documento
+    versionKey: false
+});
+
+// atribuindo o esquema a uma collection
+// estou definindo o nome da collection que irei salvar no banco
+const travels = mongoose.model('Travels', travelsSchema);
+
+// exportar o model para ser utilizado
+module.exports = travels;
+```
+
 
 ----
 
