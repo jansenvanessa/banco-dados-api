@@ -568,7 +568,10 @@ Logo em seguida, precisaremos criar a string de conexão com o banco de dados Mo
 
 ```
 //String de conexao
-mongoose.connect("mongodb://localhost:27017/reprograma-trip",  { useNewUrlParser: true });
+mongoose.connect("mongodb://localhost:27017/reprograma-trip", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
 ```
 
 Para que consigamos ter uma visibilidade de erros caso a conexão com o banco de dados falhe, recomendamos colocar essas tratativas:
@@ -586,6 +589,8 @@ db.once("open", function () {
 Agora podemos testar se a nossa conexão foi feita com sucesso dando um `npm start` no terminal e vendo se ele vai subir se conectando no banco de dados.
 
 ## Alterando os arquivos json para consultar direto do Banco de Dados
+
+### Criação de Schemas
 
 Com a conexão com o banco de dados feita na nossa api, podemos parar de consumir os arquivos json e fazer a comunicação direta com o banco de dados. Primeiro, vamos na pasta `models` onde estão nossos json e vamos criar dois novos arquivos: `passengers.js` e `travels.js`.
 
@@ -639,6 +644,60 @@ const travels = mongoose.model('Travels', travelsSchema);
 // exportar o model para ser utilizado
 module.exports = travels;
 ```
+### Substituindo os arquivos json pelos schemas
+
+Agora que já temos os schemas das nossas duas collections definidos (Passengers e Travels), precisamos ir no `Controller` e parar de utilizar os arquivos json e passar a utilizar nossos schemas.
+
+* Primeiro vamos no arquivo `travelsController`:
+
+1 - comentamos (ou removemos) a linha onde importamos a informação do travels.json e passamos a importar o schema Travels:
+
+```
+// const travels = require("../models/travels.json"); // remover ou comentar essa linha
+const travels = require("../models/travels"); // adicionar essa linha
+```
+2 - alteramos as chamadas dos métodos HTTP dentro do Controller para consumir o banco de dados:
+
+* Função getAllTravels:
+
+```
+const getAllTravels = (req, res) => {
+    // res.status(200).json(travels); // comentamos ou excluimos essa linha
+    travels.find(function (err, travelsFound) {
+        if (err) {
+            res.status(500).send({ message: err.message })
+        }
+        if (travelsFound && travelsFound.length > 0) {
+            res.status(200).send(travelsFound);
+        } else {
+            res.status(204).send();
+        }
+    })
+};
+```
+* Função getTravelById:
+
+```
+const getTravelById = (req, res) => {
+    const resquestId = req.params.id;
+    // const filteredTravel = utils.filterById(travels, resquestId); // comentamos ou excluimos
+    // res.status(200).send(filteredTravel); // comentamos ou excluimos
+
+    //Find sempre retorna uma lista
+    //FindOne retorna um unico documento
+    travels.findOne({ id: resquestId }, function (err, travelsFound) {
+        if (err) {
+            res.status(500).send({ message: err.message })
+        }
+        if (travelsFound) {
+            res.status(200).send(travelsFound);
+        } else {
+            res.status(204).send();
+        }
+    })
+};
+```
+
 
 
 ----
