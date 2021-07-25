@@ -5,20 +5,14 @@ const travelsController = require("../controllers/travelsControllers");
 const passengersController = require("../controllers/passengersControllers");
 
 // VIAGENS
-router.get("/travels/", travelsController.getAllTravels);
-router.get("/travels/:id", travelsController.getTravelById);
-
-router.post("/travels/:id/passenger/create", passengersController.createPassenger);
+router.get("/travels/", travelsController.getAllTravels); // lista todas as viagens
+router.get("/travels/:id", travelsController.getTravelById); // busca uma viagem pelo id
+router.post("/travels/:id/passenger/create", passengersController.createPassenger); // cria um novo passageiro em uma viagem
 
 // PASSAGEIROS
-
-router.get("/passengers", passengersController.getAllPassengers);
-
-router.delete("/passengers/:id", passengersController.deletePassenger);
-
-router.put("/passengers/:id", passengersController.replacePassenger);
-
-router.patch("/passenger/updateName/:id", passengersController.updateName);
-
+router.get("/passengers", passengersController.getAllPassengers); // recupera todos os passageiros
+router.delete("/passengers/:id", passengersController.deletePassenger); // deleta um passageiro por id
+router.put("/passengers/:id", passengersController.replacePassenger); // altera dados do passageiro por id
+router.patch("/passengers/updateName/:id", passengersController.updateName); // altera o nome de um passageiro por id
 
 module.exports = router;

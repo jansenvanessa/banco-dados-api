@@ -35,9 +35,9 @@ const createPassenger = (req, res) => {
         };
     });
 
-
-    fs.writeFile("./src/models/passengers.json", JSON.stringify(passengers), 'utf8', () => {})
-    fs.writeFile("./src/models/travels.json", JSON.stringify(travels), 'utf8', function(err) {
+    passengers.push(passenger) // adicionando passageiro na lista de passageiros do sistema
+    fs.writeFile("./src/models/passengers.json", JSON.stringify(passengers), 'utf8', () => { })
+    fs.writeFile("./src/models/travels.json", JSON.stringify(travels), 'utf8', function (err) {
         if (err) {
             res.status(500).send({ message: err }); //responder com o erro
         } else {
@@ -76,7 +76,7 @@ const replacePassenger = (req, res) => {
     if (index >= 0) { // verifico se o passageiro existe
         // passageiro encontrado!
         passengers.splice(index, 1, updatedPassenger) // busco no array o passageiro, excluo o registro antigo e subtituo pelo novo
-        fs.writeFile("./src/models/passengers.json", JSON.stringify(passengers), 'utf8', function(err) {
+        fs.writeFile("./src/models/passengers.json", JSON.stringify(passengers), 'utf8', function (err) {
             if (err) {
                 res.status(500).send({ message: err }) // caso de erro retorno status 500
             } else {
@@ -96,17 +96,14 @@ const replacePassenger = (req, res) => {
 const updateName = (req, res) => {
     const requiredId = req.params.id;
     let newName = req.body.name;
-    // console.log(requiredId)
 
     let filteredPassenger = utils.filterById(passengers, requiredId);
-    // console.log('PASSENGER', filteredPassenger);
 
-    // console.log(filteredPassenger)
     if (filteredPassenger) {
-        // console.log(filteredPassenger)
         filteredPassenger.name = newName;
 
-        fs.writeFile("./src/models/passengers.json", JSON.stringify(passengers), 'utf8', function(err) {
+        //atualiza passageiro na base de passageiros
+        fs.writeFile("./src/models/passengers.json", JSON.stringify(passengers), 'utf8', function (err) {
             if (err) {
                 res.status(500).send({ message: err }) // caso de erro retorno status 500
             } else {
@@ -117,7 +114,7 @@ const updateName = (req, res) => {
             }
         })
     } else {
-        res.status(500).send({ "message": "Passageiro não encontrado" })
+        res.status(404).send({ "message": "Passageiro não encontrado para ter nome atualizado!" })
     }
 }
 
@@ -125,14 +122,14 @@ const deletePassenger = (req, res) => {
     const requiredId = req.params.id;
 
     let filteredPassenger = utils.filterById(passengers, requiredId);
-    // console.log('PASSENGER', filteredPassenger);
-
     const index = passengers.indexOf(filteredPassenger);
-
+    console.log("achei??")
+    console.log(index)
+    // deleta passageiro da base de passageiros
     if (index >= 0) {
         passengers.splice(index, 1)
 
-        fs.writeFile("./src/models/passengers.json", JSON.stringify(passengers), 'utf8', function(err) {
+        fs.writeFile("./src/models/passengers.json", JSON.stringify(passengers), 'utf8', function (err) {
             if (err) {
                 res.status(500).send({ message: err }) // caso de erro retorno status 500
             } else {
@@ -142,7 +139,9 @@ const deletePassenger = (req, res) => {
                 }]);
             };
         });
-    };
+    } else {
+        res.status(404).json({ mensagem: "Passageiro não encontrado para deletar!" });
+    }
 };
 
 module.exports = {
