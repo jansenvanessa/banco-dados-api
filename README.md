@@ -650,19 +650,21 @@ Agora que já temos os schemas das nossas duas collections definidos (Passengers
 
 * Primeiro vamos no arquivo `travelsController`:
 
-1 - comentamos (ou removemos) a linha onde importamos a informação do travels.json e passamos a importar o schema Travels:
+1 - Comentamos (ou removemos) a linha onde importamos a informação do travels.json e passamos a importar o schema Travels:
 
 ```
 // const travels = require("../models/travels.json"); // remover ou comentar essa linha
 const travels = require("../models/travels"); // adicionar essa linha
 ```
-2 - alteramos as chamadas dos métodos HTTP dentro do Controller para consumir o banco de dados:
+
+2 - Alteramos as chamadas dos métodos HTTP dentro do Controller para consumir o banco de dados:
 
 * Função getAllTravels:
 
 ```
 const getAllTravels = (req, res) => {
     // res.status(200).json(travels); // comentamos ou excluimos essa linha
+    //Find sempre retorna uma lista
     travels.find(function (err, travelsFound) {
         if (err) {
             res.status(500).send({ message: err.message })
@@ -697,6 +699,20 @@ const getTravelById = (req, res) => {
     })
 };
 ```
+* Agora, vamos no arquivo `passengersController`:
+
+1 - Comentamos (ou removemos) as linhas onde importamos a informação do `passengers.json` e `travels.json` e passamos a importar o schema `Passengers` e o schema `Travels`. Podemos também remover a importação do `fs` e do `utils` (inclusive podemos apagar essa pasta já que não iremos mais utilizar):
+
+```
+// const travels = require("../models/travels.json"); // comentar ou remover
+// const passengers = require("../models/passengers.json"); // comentar ou remover
+// const fs = require("fs"); // comentar ou remover
+// const utils = require("../utils/travelsUtils"); // comentar ou remover (e remover pasta)
+```
+Podemos também apagar os arquivos `passengers.json` e o arquivo `traverls.json` já que não vamos mais utilizá-los.
+
+2 - Alteramos as chamadas dos métodos HTTP dentro do Controller para consumir o banco de dados:
+
 
 
 
