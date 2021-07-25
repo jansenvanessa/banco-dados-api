@@ -534,7 +534,60 @@ Com o banco de dados populado, caso você rode a consulta `db.getCollection('Pas
 
 Agora que temos nossa base de dados pronta para poder ser utilizada pela api, podemos começar a fazer alterações na mesma para parar de trabalhar com arquivos json e passar olhar para o nosso banco de dados que acabamos de preparar.
 
+## MVC
 
+Antes de começarmos as nossas alterações no código, vamos fixar o conceito de MCV:
+
+A arquitetura padrão MVC é composta por Model, View e Controller, que representam:
+
+```
+    Model: parte da aplicação que que terá os contratos de para conexão com os bancos de dados ou com outras estruturas relacionadas.
+    View: basicamente são as estruturas que o cliente verá, tudo aquilo que estará disponível para interação com o cliente.
+    Controller: a lógica da aplicação, essa por sua vez faz a junção, entre o model e a view, pegando dados através dos models e direcionando-os a view, para interação com os usuários.
+```
+
+No nosso servidor, não teremos a estrutura View, porém teremos as nossas rotas que conterão as estruturas da nossa url para a chamada dos métodos HTTP.
+
+## Mongoose
+
+É a biblioteca do NodeJs que permite conexão com o banco de dados do MongoDB, criar modelos e esquemas, bem como utilizar comandos/consultas do mongo para manipulação dos dados.
+
+Instalação do mongoose no projeto:
+
+```
+npm install mongoose --save
+```
+
+Após realizar a instalação, iremos utilizá-lo criando uma instância através da pasta app.js do projeto, desta forma:
+
+```
+const mongoose = require("mongoose")
+```
+
+Logo em seguida, precisaremos criar a string de conexão com o banco de dados Mongo:
+
+```
+//String de conexao
+mongoose.connect("mongodb://localhost:27017/reprograma-trip",  { useNewUrlParser: true });
+```
+
+Para que consigamos ter uma visibilidade de erros caso a conexão com o banco de dados falhe, recomendamos colocar essas tratativas:
+
+```
+//Conexao com o mongo
+let db = mongoose.connection;
+
+//Captura de erro ou sucesso na conexão
+db.on("error", console.log.bind(console, "connection error:"))
+db.once("open", function () {
+    console.log("conexão feita com sucesso.")
+})
+```
+Agora podemos testar se a nossa conexão foi feita com sucesso dando um `npm start` no terminal e vendo se ele vai subir se conectando no banco de dados.
+
+## Alterando os arquivos json para consultar direto do Banco de Dados
+
+Com a conexão com o banco de dados feita na nossa api, podemos parar de consumir os arquivos json e fazer a comunicação direta com o banco de dados.
 
 ----
 
