@@ -548,7 +548,7 @@ A arquitetura padrão MVC é composta por Model, View e Controller, que represen
     Controller: a lógica da aplicação, essa por sua vez faz a junção, entre o model e a view, pegando dados através dos models e direcionando-os a view, para interação com os usuários.
 ```
 
-No nosso servidor, não teremos a estrutura View, porém teremos as nossas rotas que conterão as estruturas da nossa url para a chamada dos métodos HTTP.
+No nosso servidor, não teremos a estrutura View, porém teremos as nossas rotas que conterão as estruturas da nossa url para a chamada dos métodos HTTP. Agora que recordamos o conceito de MVC, podemos começar a fazer a nossa integração da API com o banco de dados, mas primeiramente precisamos conhecer o **Mongoose**.
 
 ## Mongoose
 
