@@ -538,6 +538,8 @@ Agora que temos nossa base de dados pronta para poder ser utilizada pela api, po
 
 Antes de começarmos as nossas alterações no código, vamos fixar o conceito de MCV:
 
+![mvc](https://dkrn4sk0rn31v.cloudfront.net/uploads/2020/06/diagramaMVC.png)
+
 A arquitetura padrão MVC é composta por Model, View e Controller, que representam:
 
 ```
@@ -551,6 +553,8 @@ No nosso servidor, não teremos a estrutura View, porém teremos as nossas rotas
 ## Mongoose
 
 É a biblioteca do NodeJs que permite conexão com o banco de dados do MongoDB, criar modelos e esquemas, bem como utilizar comandos/consultas do mongo para manipulação dos dados.
+
+![mongoose](https://miro.medium.com/max/594/1*vK4MHL_jpKKmUFGjE5H9jw.png)
 
 Instalação do mongoose no projeto:
 
@@ -844,6 +848,8 @@ Atualizando as funções utilizamos alguns métodos nativos do Mongoose como o `
 
 https://mongoosejs.com/docs/guide.html
 
-## Exercício
+## Exercício para Casa
 
-Utilizando a base de dados criada no exercício da semana 12, desenvolva uma nova API com pelo menos uma rota de `POST`, `GET`, `PUT`, e `PATCH`, gravando e retornando informações do banco de dados. Testar a API utilizando o Postman, conforme fizemos em aula.
+![homework](https://44.media.tumblr.com/aa5ddc2f7674efb9c1f4ce37365ad5dd/tumblr_ns2v6ccj521sg05bjo4_500.gif)
+
+Utilizando a base de dados criada no exercício da semana 12, desenvolva uma nova API com pelo menos uma rota de cada: `POST`, `GET`, `PUT`, e `PATCH`, gravando e retornando informações do banco de dados. Testar a API utilizando o Postman, conforme fizemos em aula.
