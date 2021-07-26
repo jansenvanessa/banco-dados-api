@@ -659,7 +659,7 @@ const travels = require("../models/travels"); // adicionar essa linha
 
 2 - Alteramos as chamadas dos métodos HTTP dentro do Controller para consumir o banco de dados:
 
-* Função getAllTravels:
+* Função **getAllTravels**:
 
 ```
 const getAllTravels = (req, res) => {
@@ -677,7 +677,7 @@ const getAllTravels = (req, res) => {
     })
 };
 ```
-* Função getTravelById:
+* Função **getTravelById**:
 
 ```
 const getTravelById = (req, res) => {
@@ -687,12 +687,12 @@ const getTravelById = (req, res) => {
 
     //Find sempre retorna uma lista
     //FindOne retorna um unico documento
-    travels.findOne({ id: resquestId }, function (err, travelsFound) {
+    travels.findOne({ id: resquestId }, function (err, travelFound) {
         if (err) {
             res.status(500).send({ message: err.message })
         }
         if (travelsFound) {
-            res.status(200).send(travelsFound);
+            res.status(200).send(travelFound);
         } else {
             res.status(204).send();
         }
@@ -713,67 +713,128 @@ Podemos também apagar os arquivos `passengers.json` e o arquivo `traverls.json`
 
 2 - Alteramos as chamadas dos métodos HTTP dentro do Controller para consumir o banco de dados:
 
+* Função **createPassenger**:
+```
+const createPassenger = (req, res) => {
+    let { name, email, documentNumber } = req.body;
+    let requiredId = req.params.id;
+    let passenger = {
+        "id": Math.random().toString(32).substr(2),
+        name,
+        email,
+        documentNumber,
+        travelId: requiredId
+    }
 
+    travels.findOne({ id: resquestId }, function (err, travelFound) { // achando a viagem solicitada na requisição
+        if (err) {
+            res.status(500).send({ message: err.message })
+        }
+        if (travelFound) {
+            travelFound.passengersInfos.push(passenger); // adicionando um passageiro à viagem solicitada
+            travelFound.save(function (err) { // salvando a viagem no banco de dados
+                if (err) {
+                    res.status(500).send({ message: err.message }) //responder com o erro
+                }
+                res.status(201).send({
+                    message: "Passageiro adicionado com sucesso!",
+                    travelRequired: travelFound.toJSON()
+                });
+            });
+        } else {
+            res.status(404).send({ message: "Viagem não encontrada para inserir passageiro!" });
+        }
+    })
+};
+```
 
+* Função **replacePassenger**:
+```
+// atualizar o passageiro
+const replacePassenger = (req, res) => {
+    const requiredId = req.params.id;
+    passengers.findOne({ id: resquestId }, function (err, passengerFound) {
+        if (err) {
+            res.status(500).send({ message: err.message })
+        }
+        if (passengerFound) {
+            passengerFound.updateOne({ id: requiredId }, { $set: req.body }, function (err) {
+                if (err) {
+                    res.status(500).send({ message: err.message })
+                }
+                res.status(200).send({ message: "Registro alterado com sucesso" })
+            })
+        } else {
+            res.status(404).send({ message: "Não há registro para ser atualizado com esse id" });
+        }
+    })
+};
+```
 
-----
+* Função **updateName**:
+```
+// atualizar apenas o nome do passageiro
+const updateName = (req, res) => {
+    const requiredId = req.params.id;
+    let newName = req.body.name;
+    passengers.findOne({ id: resquestId }, function (err, passengerFound) {
+        if (err) {
+            res.status(500).send({ message: err.message })
+        }
+        if (passengerFound) { 
+            passengerFound.updateOne({ id: requiredId }, { $set: { name : newName } }, function (err) {
+                if (err) {
+                    res.status(500).send({ message: err.message })
+                }
+                res.status(200).send({ message: "Nome alterado com sucesso" })
+            })
+        } else {
+            res.status(404).send({ message: "Não há registro para ter o nome atualizado com esse id" });
+        }
+    })
+}
+```
 
-Início da integração do backend com o banco de dados a fim de mostrar e adicionar a parte de modelo. Até aqui, será trabalhado apenas com controllers, o ideal é nessa semana dar início ao contexto de model.
+* Função **deletePassenger**:
+```
+const deletePassenger = (req, res) => {
+    const requiredId = req.params.id;
+    passengers.findOne({ id: requiredId }, function (err, passenger) {
+        if (passenger) {
+            //deleteMany remove mais de um registro
+            //deleteOne remove apenas um registro
+            passenger.deleteOne({ id }, function (err) {
+                if (err) {
+                    res.status(500).send({
+                        message: err.message,
+                        status: "FAIL"
+                    })
+                }
+                res.status(200).send({
+                    message: 'Passageiro removida com sucesso',
+                    status: "SUCCESS"
+                })
+            })
+        } else {
+            res.status(404).send({ message: 'Não há passageiro para ser removido com esse id' })
+        }
+    })
+};
+```
 
-- Integração do Back-End com o banco de dados
-    - Utilização do Mongoose (preferencialmente)
-        - String de Conexão, usuário, senha, url
-- Introdução Model;
+###  Métodos nativos do Mongoose
 
-**Objetivo:** Entender o que são bancos de dados. Aprender utilização básica de MongoDB. Conectar Banco de Dados e Aplicação utilizando `moongose`.
+Atualizando as funções utilizamos alguns métodos nativos do Mongoose como o `save`, `find`, `findOne`, `updateOne` e `deleteOne`, mas temos diversos outros, como por exemplo:
 
-1. Moongose
-    1. Conceito
-    1. Instalação
-    1. Conectando com o banco
-    1. Criando Esquemas e Modelos
-        1. Tipagem
-        1. Validação
-        1. Propriedades virtuais
-    1. Métodos nativos
-        1. Inserindo (`save`, `create` e `insertMany`)
-        1. Consultando (`find`, `findById`, `findOne`)
-        1. Atualizando (`update`, `updateOne`, `updateMany`)
-        1. Excluindo (`deleteOne`, `deleteMany`, `remove`)
-1. Arquitetura do Projeto
-    1. MVC - Manter a estrutura do projeto organizada e separar _concerns_
+1 - Para inserir (`save`, `create` e `insertMany`)
+2 - Para consultar (`find`, `findById`, `findOne`)
+3 - Para alterar (`update`, `updateOne`, `updateMany`)
+4 - Para excluir (`deleteOne`, `deleteMany`, `remove`)
 
-### Opcional
+### Documentação do Mongoose
 
-Outros métodos do moongose:
-* `count`
-* `exists`
-* `where`
-
-### Sugestões de fontes
-
-- [https://medium.com/@rafaelbarbosadc/criando-uma-api-rest-com-node-js-express-mongoose-f75a27e8cdc1](https://medium.com/@rafaelbarbosadc/criando-uma-api-rest-com-node-js-express-mongoose-f75a27e8cdc1)
-- [https://developer.mozilla.org/pt-BR/docs/Learn/Server-side/Express_Nodejs/mongoose](https://developer.mozilla.org/pt-BR/docs/Learn/Server-side/Express_Nodejs/mongoose)
-- [https://mongoosejs.com/docs/api.html#model](https://mongoosejs.com/docs/api.html#model)
+https://mongoosejs.com/docs/guide.html
 
 ## Exercício
 
-Utilizar cada comando aprendido como exercício. Elas já deverão ter bases de dados cadastradas com dados, dos exercícios da semana anterior. Agora devem fazer modelos e rotas para consultas. Testar com Postman.
-
-## Entregável
-
-Utilizando os dados dos entregáveis de API e o banco de dados das semanas anteriores. As alunas devem conectar o projeto com o banco, e refazer os métodos que antes manipulavam dados de arquivos e manipulá-los no nível de banco de dados.
-
-------------
-
-## Links de Repositórios
-
-- https://github.com/reprograma/on6-xp-s13-bd
-- https://github.com/reprograma/on7-porto-s13-integracao-bd
-- https://github.com/reprograma/On9-Accenture-S13-Backend-BD
-
-## Tabela de Conteúdos
-
-| Tópico | Tipo | Semana |
-| ----------- | ----------- | ----------- |
-| 👩🏾‍🏫 [API + BD](03.%20API%20+%20BD.md) | Lição; Exercício; Entregável | 13/18 |
+// TO DO - perguntar o que elas tem de api delas pronto
