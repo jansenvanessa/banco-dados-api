@@ -10,6 +10,30 @@ const createTravel = (req, res) => {
     })
 }
 
+const deleteTravel = (req, res) => {
+    const requiredId = req.params.id;
+    travels.findOne({ id: requiredId }, function (err, travel) {
+        if (travel) {
+            //deleteMany remove mais de um registro
+            //deleteOne remove apenas um registro
+            travel.deleteOne({ id: requiredId }, function (err) {
+                if (err) {
+                    res.status(500).send({
+                        message: err.message,
+                        status: "FAIL"
+                    })
+                }
+                res.status(200).send({
+                    message: 'Viagem removida com sucesso',
+                    status: "SUCCESS"
+                })
+            })
+        } else {
+            res.status(404).send({ message: 'Não há viagem para ser removida com esse id' })
+        }
+    })
+}
+
 const getAllTravels = (req, res) => {
     //Find sempre retorna uma lista
     travels.find(function (err, travelsFound) {
@@ -42,6 +66,7 @@ const getTravelById = (req, res) => {
 
 module.exports = {
     createTravel,
+    deleteTravel,
     getAllTravels,
     getTravelById
 }

@@ -8,7 +8,7 @@ const travelsSchema = new mongoose.Schema({
     destination: { type: Object },
     busInfos: { type: Object },
     driverInfos: { type: Object },
-    passengersInfos: { type: Object }
+    passengersInfos: { type: Array }
 }, {
     //gera por padrão uma versão para cada atualização do documento
     versionKey: false
@@ -16,7 +16,7 @@ const travelsSchema = new mongoose.Schema({
 
 // atribuindo o esquema a uma collection
 // estou definindo o nome da collection que irei salvar no banco
-const travels = mongoose.model('Travels', travelsSchema);
+const travels = mongoose.model('travels', travelsSchema);
 
 // exportar o model para ser utilizado
 module.exports = travels;

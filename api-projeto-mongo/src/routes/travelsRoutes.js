@@ -6,6 +6,7 @@ const passengersController = require("../controllers/passengersControllers");
 
 // VIAGENS
 router.post("/travels/", travelsController.createTravel); // rota nova
+router.delete("/travels/:id", travelsController.deleteTravel); // rota nova
 router.get("/travels/", travelsController.getAllTravels); // lista todas as viagens
 router.get("/travels/:id", travelsController.getTravelById); // busca uma viagem pelo id
 router.post("/travels/:id/passenger/create", passengersController.createPassenger); // cria um novo passageiro em uma viagem

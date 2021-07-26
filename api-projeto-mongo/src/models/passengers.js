@@ -14,7 +14,7 @@ const passengersSchema = new mongoose.Schema({
 
 // atribuindo o esquema a uma collection
 // estou definindo o nome da collection que irei salvar no banco
-const passengers = mongoose.model('Passengers', passengersSchema);
+const passengers = mongoose.model('passengers', passengersSchema);
 
 // exportar o model para ser utilizado
 module.exports = passengers;

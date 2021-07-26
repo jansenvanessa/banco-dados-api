@@ -6,45 +6,6 @@
 	},
 	"item": [
 		{
-			"name": "Criar Viagem",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"id\": \"0187fe6d-1f7e\",\n    \"durationPrediction\": \"08:27min\",\n    \"stops\": \"1\",\n    \"derpature\": {\n        \"local\": \"São Paulo\",\n        \"time\": \"Jan 04 2021 22:00:00\"\n    },\n    \"destination\": {\n        \"local\": \"Rio de Janeiro\",\n        \"time\": \"Jan 05 2021 06:27:00\"\n    },\n    \"busInfos\": {\n        \"registerNumber\": \"12345\",\n        \"capacity\": \"40\"\n    },\n    \"driverInfos\": {\n        \"id\": \"iIt_aijKGGf-wibaF7i12m-hs\",\n        \"name\": \"Gustavo Henrique Melo\",\n        \"license\": \"41713-4219\"\n    },\n    \"passengersInfos\": [ ]\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8080/travels",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"travels"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Deletar Viagem",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Listar Viagens",
 			"request": {
 				"method": "GET",

@@ -2,7 +2,12 @@ const travels = require("../models/travels");
 const passengers = require("../models/passengers");
 
 const getAllPassengers = (req, res) => {
-    res.status(200).send(passengers);
+    passengers.find(function (err, passengers) {
+        if (err) {
+            res.status(500).send({ message: err.message })
+        }
+        res.status(200).send(passengers);
+    })
 };
 
 const createPassenger = (req, res) => {
@@ -20,17 +25,26 @@ const createPassenger = (req, res) => {
         if (err) {
             res.status(500).send({ message: err.message })
         }
-        if (travelFound) {
-            travelFound.passengersInfos.push(passenger); // adicionando um passageiro à viagem solicitada
-            travelFound.save(function (err) { // salvando a viagem no banco de dados
+        if (travelFound) { // verifico primeiro se a viagem existe na base de dados
+            let newPassenger = new passengers(passenger)
+            newPassenger.save(function (err) { // crio novo passageiro na collection de passageiros
                 if (err) {
-                    res.status(500).send({ message: err.message }) //responder com o erro
+                    // se deu erro ao salvar o passageiro na collection de passageiros
+                    res.status(500).send({ message: err.message })
+                } else {
+                    // se deu certo salvar o passageiro na collection de passageiros vou salvar na viagem tambem
+                    travelFound.passengersInfos.push(passenger); // adicionando um passageiro à viagem solicitada
+                    travels.updateOne({ id: requiredId }, { $set: { passengersInfos: travelFound.passengersInfos } }, function (err) { // atualizando os passageiros na viagem no banco de dados
+                        if (err) {
+                            res.status(500).send({ message: err.message }) //responder com o erro
+                        }
+                        res.status(201).send({
+                            message: "Passageiro adicionado com sucesso!",
+                            ...travelFound.toJSON()
+                        });
+                    });
                 }
-                res.status(201).send({
-                    message: "Passageiro adicionado com sucesso!",
-                    travelRequired: travelFound.toJSON()
-                });
-            });
+            })
         } else {
             res.status(404).send({ message: "Viagem não encontrada para inserir passageiro!" });
         }
@@ -40,12 +54,12 @@ const createPassenger = (req, res) => {
 // atualizar o passageiro
 const replacePassenger = (req, res) => {
     const requiredId = req.params.id;
-    passengers.findOne({ id: resquestId }, function (err, passengerFound) {
+    passengers.findOne({ id: requiredId }, function (err, passengerFound) {
         if (err) {
             res.status(500).send({ message: err.message })
         }
         if (passengerFound) {
-            passengerFound.updateOne({ id: requiredId }, { $set: req.body }, function (err) {
+            passengers.updateOne({ id: requiredId }, { $set: req.body }, function (err) {
                 if (err) {
                     res.status(500).send({ message: err.message })
                 }
@@ -61,19 +75,20 @@ const replacePassenger = (req, res) => {
 const updateName = (req, res) => {
     const requiredId = req.params.id;
     let newName = req.body.name;
-    passengers.findOne({ id: resquestId }, function (err, passengerFound) {
+    passengers.findOne({ id: requiredId }, function (err, passengerFound) {
         if (err) {
             res.status(500).send({ message: err.message })
-        }
-        if (passengerFound) {
-            passengerFound.updateOne({ id: requiredId }, { $set: { name: newName } }, function (err) {
-                if (err) {
-                    res.status(500).send({ message: err.message })
-                }
-                res.status(200).send({ message: "Nome alterado com sucesso" })
-            })
         } else {
-            res.status(404).send({ message: "Não há registro para ter o nome atualizado com esse id" });
+            if (passengerFound) {
+                passengers.updateOne({ id: requiredId }, { $set: { name: newName } }, function (err) {
+                    if (err) {
+                        res.status(500).send({ message: err.message })
+                    }
+                    res.status(200).send({ message: "Nome alterado com sucesso" })
+                })
+            } else {
+                res.status(404).send({ message: "Não há registro para ter o nome atualizado com esse id" });
+            }
         }
     })
 }
@@ -81,23 +96,27 @@ const updateName = (req, res) => {
 const deletePassenger = (req, res) => {
     const requiredId = req.params.id;
     passengers.findOne({ id: requiredId }, function (err, passenger) {
-        if (passenger) {
-            //deleteMany remove mais de um registro
-            //deleteOne remove apenas um registro
-            passenger.deleteOne({ id }, function (err) {
-                if (err) {
-                    res.status(500).send({
-                        message: err.message,
-                        status: "FAIL"
-                    })
-                }
-                res.status(200).send({
-                    message: 'Passageiro removida com sucesso',
-                    status: "SUCCESS"
-                })
-            })
+        if (err) {
+            res.status(500).send({ message: err.message })
         } else {
-            res.status(404).send({ message: 'Não há passageiro para ser removido com esse id' })
+            if (passenger) {
+                //deleteMany remove mais de um registro
+                //deleteOne remove apenas um registro
+                passengers.deleteOne({ id: requiredId }, function (err) {
+                    if (err) {
+                        res.status(500).send({
+                            message: err.message,
+                            status: "FAIL"
+                        })
+                    }
+                    res.status(200).send({
+                        message: 'Passageiro removido com sucesso',
+                        status: "SUCCESS"
+                    })
+                })
+            } else {
+                res.status(404).send({ message: 'Não há passageiro para ser removido com esse id' })
+            }
         }
     })
 };
