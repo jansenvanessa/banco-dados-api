@@ -528,7 +528,7 @@ db.travels.insertMany([{
 ]);
 ```
 
-Com o banco de dados populado, caso você rode a consulta `db.getCollection('Passengers').find({})` e a consulta `db.getCollection('Travels').find({})` você verá que a mesma retornará informações, o que antes não acontecia com essas collections vazias.
+Com o banco de dados populado, caso você rode a consulta `db.getCollection('passengers').find({})` e a consulta `db.getCollection('travels').find({})` você verá que a mesma retornará informações, o que antes não acontecia com essas collections vazias.
 
 ## Banco de Dados populado, e agora?
 
