@@ -32,11 +32,11 @@ use reprograma-trip
 
 ### Novas Collections
 
-Como mencionei anteriormente, na nossa api hoje temos dois arquivos dentro da pasta `models`: o arquivo `passengers.json` e o arquivo `travels.json`. Concorda que faz todo sentido criarmos uma collection `Passengers` e uma collection `Travels` no nosso database `reprograma-trip` para armazenarmos essas informações? Então vamos criá-las com os seguintes comandos:
+Como mencionei anteriormente, na nossa api hoje temos dois arquivos dentro da pasta `models`: o arquivo `passengers.json` e o arquivo `travels.json`. Concorda que faz todo sentido criarmos uma collection `passengers` e uma collection `travels` no nosso database `reprograma-trip` para armazenarmos essas informações? Então vamos criá-las com os seguintes comandos:
 
 ```
-db.createCollection('Travels');
-db.createCollection('Passengers');
+db.createCollection('travels');
+db.createCollection('passengers');
 ```
 
 ### Novos Documentos
@@ -45,7 +45,7 @@ Com nossas duas collections criadas e vazias, vamos inserir novos registros! Par
 
 * Inserir passageiros:
 ```
-db.Passengers.insertMany([
+db.passengers.insertMany([
     {
         "id": "F4fBusex3Kl6Di6GjABba7gK0",
         "name": "Joana Vieira",
@@ -234,7 +234,7 @@ db.Passengers.insertMany([
 * Inserir Viagens:
 
 ```
-db.Travels.insertMany([{
+db.travels.insertMany([{
         "id": "jIan-LdcKJa2hj2zJ1m_",
         "durationPrediction": "08:27min",
         "stops": "1",
@@ -568,9 +568,9 @@ Logo em seguida, precisaremos criar a string de conexão com o banco de dados Mo
 
 ```
 //String de conexao
-mongoose.connect("mongodb://localhost:27017/reprograma-trip", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+mongoose.connect("mongodb://localhost:27017/reprograma-trip", { // no nosso caso nao temos usuario e senha, mas caso tivessemos poderiamos seguir esse formato: mongodb://username:password@localhost:27017/reprograma-trip
+    useNewUrlParser: true, // define que vai utilizar a nova url parse da string de conexao
+    useUnifiedTopology: true // define que vai utilizar o novo mecanismo de gerenciamento de conexao do driver do mongodb
 });
 ```
 
@@ -613,7 +613,7 @@ const passengersSchema = new mongoose.Schema({
 
 // atribuindo o esquema a uma collection
 // estou definindo o nome da collection que irei salvar no banco
-const passengers = mongoose.model('Passengers', passengersSchema);
+const passengers = mongoose.model('passengers', passengersSchema);
 
 // exportar o model para ser utilizado
 module.exports = passengers;
@@ -631,7 +631,7 @@ const travelsSchema = new mongoose.Schema({
     destination: { type: Object },
     busInfos: { type: Object },
     driverInfos: { type: Object },
-    passengersInfos: { type: Object }
+    passengersInfos: { type: Array }
 }, {
     //gera por padrão uma versão para cada atualização do documento
     versionKey: false
@@ -639,14 +639,14 @@ const travelsSchema = new mongoose.Schema({
 
 // atribuindo o esquema a uma collection
 // estou definindo o nome da collection que irei salvar no banco
-const travels = mongoose.model('Travels', travelsSchema);
+const travels = mongoose.model('travels', travelsSchema);
 
 // exportar o model para ser utilizado
 module.exports = travels;
 ```
 ### Substituindo os arquivos json pelos schemas
 
-Agora que já temos os schemas das nossas duas collections definidos (Passengers e Travels), precisamos ir no `Controller` e parar de utilizar os arquivos json e passar a utilizar nossos schemas.
+Agora que já temos os schemas das nossas duas collections definidos (passengers e travels), precisamos ir no `Controller` e parar de utilizar os arquivos json e passar a utilizar nossos schemas.
 
 * Primeiro vamos no arquivo `travelsController`:
 
@@ -663,7 +663,6 @@ const travels = require("../models/travels"); // adicionar essa linha
 
 ```
 const getAllTravels = (req, res) => {
-    // res.status(200).json(travels); // comentamos ou excluimos essa linha
     //Find sempre retorna uma lista
     travels.find(function (err, travelsFound) {
         if (err) {
@@ -682,16 +681,12 @@ const getAllTravels = (req, res) => {
 ```
 const getTravelById = (req, res) => {
     const resquestId = req.params.id;
-    // const filteredTravel = utils.filterById(travels, resquestId); // comentamos ou excluimos
-    // res.status(200).send(filteredTravel); // comentamos ou excluimos
-
-    //Find sempre retorna uma lista
     //FindOne retorna um unico documento
     travels.findOne({ id: resquestId }, function (err, travelFound) {
         if (err) {
             res.status(500).send({ message: err.message })
         }
-        if (travelsFound) {
+        if (travelFound) {
             res.status(200).send(travelFound);
         } else {
             res.status(204).send();
@@ -726,21 +721,30 @@ const createPassenger = (req, res) => {
         travelId: requiredId
     }
 
-    travels.findOne({ id: resquestId }, function (err, travelFound) { // achando a viagem solicitada na requisição
+    travels.findOne({ id: requiredId }, function (err, travelFound) { // achando a viagem solicitada na requisição
         if (err) {
             res.status(500).send({ message: err.message })
         }
-        if (travelFound) {
-            travelFound.passengersInfos.push(passenger); // adicionando um passageiro à viagem solicitada
-            travelFound.save(function (err) { // salvando a viagem no banco de dados
+        if (travelFound) { // verifico primeiro se a viagem existe na base de dados
+            let newPassenger = new passengers(passenger)
+            newPassenger.save(function (err) { // crio novo passageiro na collection de passageiros
                 if (err) {
-                    res.status(500).send({ message: err.message }) //responder com o erro
+                    // se deu erro ao salvar o passageiro na collection de passageiros
+                    res.status(500).send({ message: err.message })
+                } else {
+                    // se deu certo salvar o passageiro na collection de passageiros vou salvar na viagem tambem
+                    travelFound.passengersInfos.push(passenger); // adicionando um passageiro à viagem solicitada
+                    travels.updateOne({ id: requiredId }, { $set: { passengersInfos: travelFound.passengersInfos } }, function (err) { // atualizando os passageiros na viagem no banco de dados
+                        if (err) {
+                            res.status(500).send({ message: err.message }) //responder com o erro
+                        }
+                        res.status(201).send({
+                            message: "Passageiro adicionado com sucesso!",
+                            ...travelFound.toJSON()
+                        });
+                    });
                 }
-                res.status(201).send({
-                    message: "Passageiro adicionado com sucesso!",
-                    travelRequired: travelFound.toJSON()
-                });
-            });
+            })
         } else {
             res.status(404).send({ message: "Viagem não encontrada para inserir passageiro!" });
         }
@@ -753,12 +757,12 @@ const createPassenger = (req, res) => {
 // atualizar o passageiro
 const replacePassenger = (req, res) => {
     const requiredId = req.params.id;
-    passengers.findOne({ id: resquestId }, function (err, passengerFound) {
+    passengers.findOne({ id: requiredId }, function (err, passengerFound) {
         if (err) {
             res.status(500).send({ message: err.message })
         }
         if (passengerFound) {
-            passengerFound.updateOne({ id: requiredId }, { $set: req.body }, function (err) {
+            passengers.updateOne({ id: requiredId }, { $set: req.body }, function (err) {
                 if (err) {
                     res.status(500).send({ message: err.message })
                 }
@@ -777,19 +781,20 @@ const replacePassenger = (req, res) => {
 const updateName = (req, res) => {
     const requiredId = req.params.id;
     let newName = req.body.name;
-    passengers.findOne({ id: resquestId }, function (err, passengerFound) {
+    passengers.findOne({ id: requiredId }, function (err, passengerFound) {
         if (err) {
             res.status(500).send({ message: err.message })
-        }
-        if (passengerFound) { 
-            passengerFound.updateOne({ id: requiredId }, { $set: { name : newName } }, function (err) {
-                if (err) {
-                    res.status(500).send({ message: err.message })
-                }
-                res.status(200).send({ message: "Nome alterado com sucesso" })
-            })
         } else {
-            res.status(404).send({ message: "Não há registro para ter o nome atualizado com esse id" });
+            if (passengerFound) {
+                passengers.updateOne({ id: requiredId }, { $set: { name: newName } }, function (err) {
+                    if (err) {
+                        res.status(500).send({ message: err.message })
+                    }
+                    res.status(200).send({ message: "Nome alterado com sucesso" })
+                })
+            } else {
+                res.status(404).send({ message: "Não há registro para ter o nome atualizado com esse id" });
+            }
         }
     })
 }
@@ -800,23 +805,27 @@ const updateName = (req, res) => {
 const deletePassenger = (req, res) => {
     const requiredId = req.params.id;
     passengers.findOne({ id: requiredId }, function (err, passenger) {
-        if (passenger) {
-            //deleteMany remove mais de um registro
-            //deleteOne remove apenas um registro
-            passenger.deleteOne({ id }, function (err) {
-                if (err) {
-                    res.status(500).send({
-                        message: err.message,
-                        status: "FAIL"
-                    })
-                }
-                res.status(200).send({
-                    message: 'Passageiro removida com sucesso',
-                    status: "SUCCESS"
-                })
-            })
+        if (err) {
+            res.status(500).send({ message: err.message })
         } else {
-            res.status(404).send({ message: 'Não há passageiro para ser removido com esse id' })
+            if (passenger) {
+                //deleteMany remove mais de um registro
+                //deleteOne remove apenas um registro
+                passengers.deleteOne({ id: requiredId }, function (err) {
+                    if (err) {
+                        res.status(500).send({
+                            message: err.message,
+                            status: "FAIL"
+                        })
+                    }
+                    res.status(200).send({
+                        message: 'Passageiro removido com sucesso',
+                        status: "SUCCESS"
+                    })
+                })
+            } else {
+                res.status(404).send({ message: 'Não há passageiro para ser removido com esse id' })
+            }
         }
     })
 };
@@ -837,4 +846,4 @@ https://mongoosejs.com/docs/guide.html
 
 ## Exercício
 
-// TO DO - perguntar o que elas tem de api delas pronto
+Utilizando a base de dados criada no exercício da semana 12, desenvolva uma nova API com pelo menos uma rota de `POST`, `GET`, `PUT`, e `PATCH`, gravando e retornando informações do banco de dados. Testar a API utilizando o Postman, conforme fizemos em aula.
