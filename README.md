@@ -852,4 +852,4 @@ https://mongoosejs.com/docs/guide.html
 
 ![homework](https://44.media.tumblr.com/aa5ddc2f7674efb9c1f4ce37365ad5dd/tumblr_ns2v6ccj521sg05bjo4_500.gif)
 
-Utilizando a base de dados criada no exercício da semana 12, desenvolva uma nova API com pelo menos uma rota de cada: `POST`, `GET`, `PUT`, e `PATCH`, gravando e retornando informações do banco de dados. Testar a API utilizando o Postman, conforme fizemos em aula.
+Utilizando a base de dados criada no exercício que foi feito em casa, da semana 12, desenvolva uma nova API com pelo menos uma rota de cada: `POST`, `GET`, `PUT`, e `PATCH`, gravando e retornando informações do banco de dados. Testar a API utilizando o Postman, conforme fizemos em aula.
