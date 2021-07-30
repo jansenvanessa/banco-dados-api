@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const app = express();
 
 //String de conexao
-mongoose.connect("mongodb://localhost:27017/reprograma-trip", { // no nosso caso nao temos usuario e senha, mas caso tivessemos poderiamos seguir esse formato: mongodb://username:password@host:port/database
+mongoose.connect("mongodb://localhost:27017/reprograma-trip", { // no nosso caso nao temos usuario e senha, mas caso tivessemos poderiamos seguir esse formato: mongodb://username:password@localhost:27017/reprograma-trip
     useNewUrlParser: true, // define que vai utilizar a nova url parse da string de conexao
     useUnifiedTopology: true // define que vai utilizar o novo mecanismo de gerenciamento de conexao do driver do mongodb
 });

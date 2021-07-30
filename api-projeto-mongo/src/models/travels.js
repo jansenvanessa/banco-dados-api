@@ -14,6 +14,15 @@ const travelsSchema = new mongoose.Schema({
     versionKey: false
 });
 
+travelsSchema.virtual('ticket').
+    get(function () {
+        return this.id + '-' + this.destination.local;
+    }).
+    set(function (v) {
+        this.id = v.substr(0, v.indexOf('-'));
+        this.destination.local = v.substr(v.indexOf('-') + 1);
+    });
+
 // atribuindo o esquema a uma collection
 // estou definindo o nome da collection que irei salvar no banco
 const travels = mongoose.model('travels', travelsSchema);

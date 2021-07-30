@@ -6,7 +6,7 @@ const createTravel = (req, res) => {
         if (err) {
             res.status(500).send({ message: err.message })
         }
-        res.status(201).send(travel.toJSON())
+        res.status(201).send(travel.toJSON({ virtuals: true }))
     })
 }
 
@@ -56,7 +56,7 @@ const getTravelById = (req, res) => {
             res.status(500).send({ message: err.message })
         }
         if (travelFound) {
-            res.status(200).send(travelFound);
+            res.status(200).send(travelFound.toJSON({ virtuals: true }));
         } else {
             res.status(204).send();
         }
