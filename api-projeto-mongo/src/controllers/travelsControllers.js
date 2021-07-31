@@ -5,8 +5,9 @@ const createTravel = (req, res) => {
     travel.save(function (err) {
         if (err) {
             res.status(500).send({ message: err.message })
+        } else {
+            res.status(201).send(travel.toJSON({ virtuals: true }))
         }
-        res.status(201).send(travel.toJSON({ virtuals: true }))
     })
 }
 
@@ -22,11 +23,12 @@ const deleteTravel = (req, res) => {
                         message: err.message,
                         status: "FAIL"
                     })
+                } else {
+                    res.status(200).send({
+                        message: 'Viagem removida com sucesso',
+                        status: "SUCCESS"
+                    })
                 }
-                res.status(200).send({
-                    message: 'Viagem removida com sucesso',
-                    status: "SUCCESS"
-                })
             })
         } else {
             res.status(404).send({ message: 'Não há viagem para ser removida com esse id' })
@@ -39,11 +41,12 @@ const getAllTravels = (req, res) => {
     travels.find(function (err, travelsFound) {
         if (err) {
             res.status(500).send({ message: err.message })
-        }
-        if (travelsFound && travelsFound.length > 0) {
-            res.status(200).send(travelsFound);
         } else {
-            res.status(204).send();
+            if (travelsFound && travelsFound.length > 0) {
+                res.status(200).send(travelsFound);
+            } else {
+                res.status(204).send();
+            }
         }
     })
 };
@@ -54,11 +57,12 @@ const getTravelById = (req, res) => {
     travels.findOne({ id: resquestId }, function (err, travelFound) {
         if (err) {
             res.status(500).send({ message: err.message })
-        }
-        if (travelFound) {
-            res.status(200).send(travelFound.toJSON({ virtuals: true }));
         } else {
-            res.status(204).send();
+            if (travelFound) {
+                res.status(200).send(travelFound.toJSON({ virtuals: true }));
+            } else {
+                res.status(204).send();
+            }
         }
     })
 };
